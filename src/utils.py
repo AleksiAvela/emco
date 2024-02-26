@@ -10,15 +10,15 @@ def preprocess(data, min_df=1, min_len=1, stopwords=[], sep=None, stem=True):
 	'''
 	data            : array or list of the documents
 	min_df, min_len : word is included in the vocabulary only if its frequency in data
-					  is strictly greater than min_df and its length is strictly greater 
-					  than min_len
+			  is strictly greater than min_df and its length is strictly greater 
+			  than min_len
 	stopwords       : list of stopwords to be removed from the vocabulary
 	sep             : symbol separating words; if None is given, the documents are
-					  tokenized with RegexpTokenizer(r'[a-zA-Z]+')
+			  tokenized with RegexpTokenizer(r'[a-zA-Z]+')
 	stem            : whether to (snowball) stem the words
 	---
 	returns         : list of preprocessed documents as lists of lower case tokens
-					  and dictionaries of {word : index} and {word : frequency}
+			  and dictionaries of {word : index} and {word : frequency}
 	'''
 		
 	stemmer = snowballstemmer.stemmer('english')
