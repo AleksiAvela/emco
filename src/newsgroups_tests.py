@@ -41,7 +41,7 @@ svc_tol = 1e-3
 
 balance_ratio  = 0.1 # Relative minority frequency after sampling
 train_min_df   = 2   # Only words that appear more than "train_min_df" times in
-			         # training documents are included in vocabulary
+		     # training documents are included in vocabulary
 sampling_strategy = balance_ratio/(1-balance_ratio)
 
 ### Preprocessing setup:
@@ -83,8 +83,7 @@ start_time = datetime.now()
 
 ### Initialize the training and test sets:
 tr_docs, tr_vocabulary, _ = preprocess(list(train_data), min_df=train_min_df,
-								       stopwords=stopwords,
-								       sep=None, stem=True)
+				       stopwords=stopwords, sep=None, stem=True)
 te_docs, _, _ = preprocess(list(test_data), min_df=0, sep=None, stem=True)
 
 ### Free some memory:
@@ -112,10 +111,10 @@ te_corpus = [' '.join(doc) for doc in te_docs]
 
 # tf-idf transformer with the default settings:
 pipe = Pipeline([('count', CountVectorizer(vocabulary=tr_vocabulary)),
-				 ('tfidf', TfidfTransformer(norm=norm,
-						   use_idf=idf,
-						   smooth_idf=smooth, 
-						   sublinear_tf=tf))]).fit(tr_corpus)
+		 ('tfidf', TfidfTransformer(norm=norm,
+					    use_idf=idf,
+					    smooth_idf=smooth, 
+					    sublinear_tf=tf))]).fit(tr_corpus)
 
 X_tr = dok_matrix(pipe.transform(tr_corpus))
 X_te = dok_matrix(pipe.transform(te_corpus))
@@ -147,7 +146,7 @@ for j, category in enumerate(categories):
 		
 		if k == 0:
 			
-			# Initialize the oversampling methods: 
+			### Initialize the oversampling methods: 
 			ros = ROS(sampling_strategy=sampling_strategy)
 			### Number of nearest neighbors for SMOTE and ADASYN:
 			n_neighbors = min(5, sum(y_tr)-1) # max neighbors = 5 (the default value)
@@ -213,8 +212,8 @@ for j, category in enumerate(categories):
 		
 		method,bAcc,TPR,TNR,prec,f_1,f_2 = [],[],[],[],[],[],[]
 		for X, y, name in zip([X_tr, Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco],
-							  [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
-					  ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
+				      [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
+				      ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
 			if name == "DRO":
 				res = test(X, y, Xdro_te, y_te, tol=svc_tol)
 			else:
@@ -228,12 +227,12 @@ for j, category in enumerate(categories):
 			f_2.append(res[5])
 		
 		results = pd.DataFrame({'Method'    : method,
-						        'Bal. Acc.' : bAcc,
-						        'TPR'       : TPR,
-						        'TNR'       : TNR,
-						        'Precision' : prec,
-						        'F1'        : f_1,
-						        'F2'        : f_2})
+					'Bal. Acc.' : bAcc,
+					'TPR'       : TPR,
+					'TNR'       : TNR,
+					'Precision' : prec,
+					'F1'        : f_1,
+					'F2'        : f_2})
 		
 		category_results.append(results)
 		
@@ -244,7 +243,7 @@ for j, category in enumerate(categories):
 		time.sleep(1)
 		
 	category_averages[category] = pd.concat(
-			category_results).groupby(by='Method').mean()
+		category_results).groupby(by='Method').mean()
 	
 
 runtime = str(datetime.now()-start_time)
