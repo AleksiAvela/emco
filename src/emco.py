@@ -4,16 +4,10 @@ from scipy.sparse import dok_matrix
 
 
 '''
- ****************************************************************
- * Implementation of the Extrapolated Markov Chain Oversampling *
- * (EMCO) method for imbalanced text classification developed   *
- * by Avela, A. and Ilmonen, P. (2024)                          *
- *                                                              *
- * EMCO is based on an assumption that the sequential structure *
- * of text can be partly learned from the majority class. Thus, *
- * oversampling with EMCO will allow the minority feature space *
- * to expand, which helps generalizing the minority class.      *
- ****************************************************************
+ *************************************************************************
+ *  Extrapolated Markov Chain Oversampling (EMCO) method for imbalanced  *
+ *  text classification developed by Avela, A. and Ilmonen, P. (2024)    *
+ *************************************************************************
 '''
 
 
