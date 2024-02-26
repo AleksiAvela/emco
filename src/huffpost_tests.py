@@ -15,7 +15,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import ADASYN
-from pydro.dro import DistributionalRandomOversampling
+from pydro.src.dro import DistributionalRandomOversampling
 from DECOMlike import LDAOS
 from emco import ExtrapolatedMarkovChainOversampling as EMCO
 
@@ -24,8 +24,8 @@ from emco import ExtrapolatedMarkovChainOversampling as EMCO
 Downloads and preprocesses HuffPost News Category Dataset (should be included in the 
 working directory, see, https://www.kaggle.com/datasets/rmisra/news-category-dataset)
 and performs oversampling and classification experiments (for either headlines or
-headlines & articles). The dataset can either be considered in its entirety or be split
-into subsets (when category results are macro-averages over the subsets). The results
+headlines + articles). The dataset can either be considered in its entirety or be split
+into subsets (then category results are macro-averages over the subsets). The results
 are aggregated for low frequency and very low frequency classes based on the given
 cutoff value ( = 0.015 ). Oversampling can be executed on different balance ratios.
 
@@ -46,8 +46,8 @@ svc_tol = 1e-3
 data_type  = 'headline' # 'headline' (-> title) or 'complete' (-> title & description)
 data_split = 5 # number of subsets to split the data into
 
-### The latent space of DRO equals the length of training data, so, in order to
-### prevent memory issues, dropping DRO from experiments may be needed:
+### The size of latent space in DRO equals the length of training data, so, in
+### order to prevent memory issues, dropping DRO from experiments may be needed:
 skip_dro = True
 
 stopwords = nltk_stopwords.words('english')
@@ -58,7 +58,7 @@ norm   = 'l2'
 
 BALANCE_RATIO = 0.1 # Relative minority frequency after sampling
 train_min_df  = 2   # Only words that appear more than "train_min_df" times in
-			        # training documents are included in vocabulary
+		    # training documents are included in vocabulary
 
 
 ### Initialize the data:
@@ -159,18 +159,17 @@ for j, category in enumerate(categories):
 			dataset.text, labels, train_size=0.5, random_state=42)
 		
 		tr_docs, tr_vocabulary, _ = preprocess(list(train_data), min_df=train_min_df,
-											   stopwords=stopwords,
-											   sep=',', stem=True)
+						       stopwords=stopwords, sep=',', stem=True)
 		te_docs, _, _ = preprocess(list(test_data), min_df=0, sep=',', stem=True)
 		
 		### Training (and test) data is transformed before oversampling:
 		tr_corpus = [' '.join(doc) for doc in tr_docs]
 		te_corpus = [' '.join(doc) for doc in te_docs]
 		pipe = Pipeline([('count', CountVectorizer(vocabulary=tr_vocabulary)),
-						 ('tfidf', TfidfTransformer(norm=norm,
-													use_idf=idf,
-													smooth_idf=smooth, 
-													sublinear_tf=tf))]).fit(tr_corpus)
+				 ('tfidf', TfidfTransformer(norm=norm,
+							    use_idf=idf,
+							    smooth_idf=smooth, 
+							    sublinear_tf=tf))]).fit(tr_corpus)
 		X_tr = dok_matrix(pipe.transform(tr_corpus))
 		X_te = dok_matrix(pipe.transform(te_corpus))
 		
@@ -267,8 +266,8 @@ for j, category in enumerate(categories):
 		
 		method,bAcc,TPR,TNR,prec,f_1,f_2 = [],[],[],[],[],[],[]
 		for X, y, name in zip([X_tr, Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco],
-							  [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
-					  ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
+				      [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
+				      ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
 			if name == "DRO":
 				if not skip_dro:
 					res = test(X, y, Xdro_te, y_te, tol=svc_tol)
@@ -286,12 +285,12 @@ for j, category in enumerate(categories):
 			f_2.append(res[5])
 			
 		results = pd.DataFrame({'Method'    : method,
-						        'Bal. Acc.' : bAcc,
-						        'TPR'       : TPR,
-						        'TNR'       : TNR,
-						        'Precision' : prec,
-						        'F1'        : f_1,
-						        'F2'        : f_2})
+					'Bal. Acc.' : bAcc,
+					'TPR'       : TPR,
+					'TNR'       : TNR,
+					'Precision' : prec,
+					'F1'        : f_1,
+					'F2'        : f_2})
 		
 		category_results.append(results)
 		
@@ -301,7 +300,7 @@ for j, category in enumerate(categories):
 		time.sleep(1)
 		
 	category_averages[category] = pd.concat(
-			category_results).groupby(by='Method').mean()
+		category_results).groupby(by='Method').mean()
 	
 
 runtime = str(datetime.now()-start_time)
