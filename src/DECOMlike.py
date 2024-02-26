@@ -20,9 +20,9 @@ class LDAOS:
 	def fit(self, X, y, pos_class=1):
 		
 		lda = LDA(n_components=self.n_topics,
-			      doc_topic_prior=self.alpha,
-				  topic_word_prior=self.beta,
-				  max_iter=self.max_iter)
+			  doc_topic_prior=self.alpha,
+			  topic_word_prior=self.beta,
+			  max_iter=self.max_iter)
 		
 		data = X[np.array(y)==pos_class]
 		lda.fit(data)
