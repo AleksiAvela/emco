@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import ADASYN
-from pydro.dro import DistributionalRandomOversampling
+from pydro.src.dro import DistributionalRandomOversampling
 from DECOMlike import LDAOS
 from emco import ExtrapolatedMarkovChainOversampling as EMCO
 
