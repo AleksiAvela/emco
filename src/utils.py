@@ -8,7 +8,7 @@ from sklearn import metrics
 def preprocess(data, min_df=1, min_len=1, stopwords=[], sep=None, stem=True):
 	
 	'''
-	data            : array or list of the documents
+	data            : array or list of documents
 	min_df, min_len : word is included in the vocabulary only if its frequency in data
 			  is strictly greater than min_df and its length is strictly greater 
 			  than min_len
@@ -74,10 +74,10 @@ def initialize_data(pos_class, stopwords=[], train_min_df=1, only_headlines=True
 	
 	'''
 	Initialize Reuters-21578 dataset with ModApte test-training split for binary
-	classification given the positive class. By default considers only headlines.
+	classification based on the given the positive class. By default, considers
+ 	only headlines, and if only_headlines=False, considers full articles.
 	---
 	returns:
-		train            : unpreprocessed training documents (used by EMCO)
 		train_docs       : preprocessed training documents
 		train_vocabulary : training vocabulary
 		y_train          : binary training labels
