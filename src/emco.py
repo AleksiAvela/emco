@@ -145,7 +145,7 @@ class ExtrapolatedMarkovChainOversampling:
 		transition probability matrix P.
 		---
 		length : length of the generated chain; if none is given, the length will
-				 be drawn from the minority document length distribution
+			 be drawn from the minority document length distribution
 		'''
 		
 		chain   = []
@@ -208,18 +208,18 @@ class ExtrapolatedMarkovChainOversampling:
 		the labels given for fit() would have included multiple classes.
 		---
 		s_ratio  : sampling ratio, i.e., the relative frequency of minority class after
-				   oversampling. Must be greater than minority class frequency and
+			   oversampling. Must be greater than minority class frequency and
 		           smaller than or equal to 0.5.
 		length   : length of the synthetic documents; if 'auto' is given draws lengths
-				   of the documents from the minority document length distribution
-	    complete : if True, returns the original data appended with the synthetic
-			       observations, otherwise returns only the synthetic sample. Note that,
-				   even though empty documents are discarded in estimation, they are
-				   still included in the complete sample (and may have an effect on the
-				   number of generated synthetic documents)
-	    ---
+			   of the documents from the minority document length distribution
+	    	complete : if True, returns the original data appended with the synthetic
+			   observations, otherwise returns only the synthetic sample. Note that,
+			   even though empty documents are discarded in estimation, they are
+			   still included in the complete sample (and may have an effect on the
+			   number of generated synthetic documents)
+	    	---
 		Returns  : an array of documents (each document is a list of tokens), and an array
-				   of of binary labels, where minority label => 1 and majority label => 0
+			   of of binary labels, where minority label => 1 and majority label => 0
 		'''
 		
 		assert self.fitted, "Run .fit() before sampling!"
