@@ -104,7 +104,7 @@ for j, category in enumerate(categories):
 			
 			sampling_strategy = balance_ratio/(1-balance_ratio)
 			
-			# Initialize the oversampling methods: 
+			### Initialize the oversampling methods: 
 			ros = ROS(sampling_strategy=sampling_strategy)
 			### Number of nearest neighbors for SMOTE and ADASYN:
 			n_neighbors = min(5, sum(y_tr)-1) # max neighbors = 5 (the default value)
