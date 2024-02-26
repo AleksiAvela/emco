@@ -1,2 +1,2 @@
 # emco
-A Python implementation of Extrapolated Markov Chain Oversampling (EMCO) method for imbalanced text classification and source code for experiments
+This repository includes a Python implementation of the Extrapolated Markov Chain Oversampling (EMCO) method introduced in the submitted manuscript *Extrapolated Markov Chain Oversampling Method for Imbalanced Text Classification* and the source code for the presented experiments ...
