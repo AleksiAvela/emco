@@ -13,12 +13,18 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import ADASYN
-from pydro.dro import DistributionalRandomOversampling
+from pydro.src.dro import DistributionalRandomOversampling
 from DECOMlike import LDAOS
 from emco import ExtrapolatedMarkovChainOversampling as EMCO
 
 
 '''
+Downloads and preprocesses Reuters-21578 dataset (ModApte) and performs oversampling
+and classification experiments (for either headlines or full articles). The results are
+macro-averages of N ( = 5) repetitions per category and are aggregated for low frequency
+and very low frequency classes based on the given cutoff value ( = 0.015 ). Oversampling
+can be executed on different balance ratios.
+
 Note that
  a) SMOTE and ADASYN use maximum number of available neighbors
 	(or at maximum 5)
@@ -30,16 +36,17 @@ Note that
 
 ### Number of times to repeat oversampling & testing for one class. The presented
 ### results are averages of these repetitions:
-N = 1
+N = 5
 cutoff = 0.015 # cutoff between low and very low frequency categories
 
 ### SVC tolerance:
 svc_tol = 1e-3
 
 ### Only classes with minority frequency lower than 0.75*balance_ratio are selected
-balance_ratio  = 0.1
-only_headlines = True # True -> headlines, False -> full Reuters articles
-train_min_df   = 2
+balance_ratio  = 0.2   # Relative minority frequency after sampling
+only_headlines = False # True -> only headlines, False -> full Reuters articles
+train_min_df   = 2     # Only words that appear more than "train_min_df" times in
+		       # training documents are included in vocabulary
 
 ### Preprocessing setup:
 stopwords = nltk_stopwords.words('english')
@@ -59,7 +66,6 @@ category_frequencies = {}
 category_averages    = {}
 
 start_time = datetime.now()
-
 
 for j, category in enumerate(categories):
 	
@@ -88,10 +94,10 @@ for j, category in enumerate(categories):
 			
 			# tf-idf transformer with the default settings:
 			pipe = Pipeline([('count', CountVectorizer(vocabulary=tr_vocabulary)),
-							 ('tfidf', TfidfTransformer(norm=norm,
-									   use_idf=idf,
-									   smooth_idf=smooth, 
-									   sublinear_tf=tf))]).fit(tr_corpus)
+					 ('tfidf', TfidfTransformer(norm=norm,
+								    use_idf=idf,
+								    smooth_idf=smooth, 
+								    sublinear_tf=tf))]).fit(tr_corpus)
 			
 			X_tr = dok_matrix(pipe.transform(tr_corpus))
 			X_te = dok_matrix(pipe.transform(te_corpus))
@@ -164,8 +170,8 @@ for j, category in enumerate(categories):
 		
 		method,bAcc,TPR,TNR,prec,f_1,f_2 = [],[],[],[],[],[],[]
 		for X, y, name in zip([X_tr, Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco],
-							  [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
-					  ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
+				      [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
+				      ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
 			if name == "DRO":
 				### DRO transforms also the test data:
 				res = test(X, y, Xdro_te, y_te, tol=svc_tol)
@@ -180,12 +186,12 @@ for j, category in enumerate(categories):
 			f_2.append(res[5])
 			
 		results = pd.DataFrame({'Method'    : method,
-						        'Bal. Acc.' : bAcc,
-						        'TPR'       : TPR,
-						        'TNR'       : TNR,
-						        'Precision' : prec,
-						        'F1'        : f_1,
-						        'F2'        : f_2})
+					'Bal. Acc.' : bAcc,
+					'TPR'       : TPR,
+					'TNR'       : TNR,
+					'Precision' : prec,
+					'F1'        : f_1,
+					'F2'        : f_2})
 		
 		category_results.append(results)
 		time.sleep(1)
