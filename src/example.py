@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import ADASYN
-from pydro.dro import DistributionalRandomOversampling
+from pydro.src.dro import DistributionalRandomOversampling
 from DECOMlike import LDAOS
 from emco import ExtrapolatedMarkovChainOversampling as EMCO
 
@@ -65,10 +65,10 @@ te_corpus = [' '.join(doc) for doc in te_docs]
 
 # tf-idf transformer with the default settings:
 pipe = Pipeline([('count', CountVectorizer(vocabulary=tr_vocabulary)),
-				 ('tfidf', TfidfTransformer(norm=norm,
-						   use_idf=idf,
-						   smooth_idf=smooth, 
-						   sublinear_tf=tf))]).fit(tr_corpus)
+		 ('tfidf', TfidfTransformer(norm=norm,
+					    use_idf=idf,
+					    smooth_idf=smooth, 
+					    sublinear_tf=tf))]).fit(tr_corpus)
 
 X_tr = dok_matrix(pipe.transform(tr_corpus))
 X_te = dok_matrix(pipe.transform(te_corpus))
@@ -135,8 +135,8 @@ print(datetime.now(), "\n")
 
 method,bAcc,TPR,TNR,prec,f_1,f_2 = [],[],[],[],[],[],[]
 for X, y, name in zip([X_tr, Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco],
-				      [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
-		              ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
+		      [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
+		      ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
 	if name == "DRO":
 		### DRO transforms also the test data:
 		res = test(X, y, Xdro_te, y_te, tol=svc_tol)
@@ -151,11 +151,11 @@ for X, y, name in zip([X_tr, Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco],
 	f_2.append(res[5])
 
 results = pd.DataFrame({'Method'    : method,
-			            'Bal. Acc.' : bAcc,
-			            'TPR'       : TPR,
-			            'TNR'       : TNR,
-			            'Precision' : prec,
-			            'F1'        : f_1,
-			            'F2'        : f_2})
+			'Bal. Acc.' : bAcc,
+			'TPR'       : TPR,
+			'TNR'       : TNR,
+			'Precision' : prec,
+			'F1'        : f_1,
+			'F2'        : f_2})
 
 print(results)
