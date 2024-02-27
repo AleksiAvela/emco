@@ -19,7 +19,7 @@ from emco import ExtrapolatedMarkovChainOversampling as EMCO
 
 '''
 This code performs the same tests with the same methods as presented in the
-results in the manuscript, but only for one specified class of Reuters-21578
+results in the article, but only for one specified class of Reuters-21578
 dataset (ModApte) and without averaging over multiple repetitions.
 
 Note that
