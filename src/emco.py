@@ -52,7 +52,7 @@ class ExtrapolatedMarkovChainOversampling:
 		vocabulary['<STOP>'] = len(vocabulary)
 		
 		self.min_vocabulary = list(min_counts.keys()) # Minority vocabulary
-		self.vocabulary		= vocabulary              # Total vocabulary
+		self.vocabulary	    = vocabulary              # Total vocabulary
 		self.distinct_words = list(vocabulary.keys()) # List of words in vocabulary
 		
 		### Minority document length distribution
@@ -168,7 +168,7 @@ class ExtrapolatedMarkovChainOversampling:
 		Divides the data into minority and majority documents, discards empty rows
 		from estimation, and estimates the transition probability matrix. Multiclass
 		data sets are modified to binary, where observations in the positive class
-		represent minority class, and all the rest of the observations majority class
+		represent minority class, and all the rest of the observations majority class.
 		---
 		data      : list of documents (where each document is a list of tokens)
 		y         : list of (binary or multiclass) labels
@@ -202,8 +202,8 @@ class ExtrapolatedMarkovChainOversampling:
 		the labels given for fit() would have included multiple classes.
 		---
 		s_ratio  : sampling ratio, i.e., the relative frequency of minority class after
-			   oversampling. Must be greater than minority class frequency and
-		           smaller than or equal to 0.5.
+			   oversampling; must be greater than relative frequency of minority
+      			   class and smaller than or equal to 0.5
 		length   : length of the synthetic documents; if 'auto' is given draws lengths
 			   of the documents from the minority document length distribution
 	    	complete : if True, returns the original data appended with the synthetic
@@ -217,8 +217,8 @@ class ExtrapolatedMarkovChainOversampling:
 		'''
 		
 		assert self.fitted, "Run .fit() before sampling!"
-		assert s_ratio>self.y.mean(), "Sampling ratio must greater than minority frequency"
-		assert s_ratio<=0.5, "Sampling ratio must smaller than or equal to 0.5"
+		assert s_ratio>self.y.mean(), "Sampling ratio must be greater than minority frequency"
+		assert s_ratio<=0.5, "Sampling ratio must be smaller than or equal to 0.5"
 		
 		### There will always be at least one synthetic document generated:
 		n = max(1, int((s_ratio*len(self.y) - sum(self.y)) / (1 - s_ratio)))
