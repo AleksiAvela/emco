@@ -23,12 +23,12 @@ results in the article, but only for one specified class of Reuters-21578
 dataset (ModApte) and without averaging over multiple repetitions.
 
 Note that
- a) SMOTE and ADASYN use maximum number of available neighbors
-	(or at maximum 5)
- b) if there is only one positive training example, SMOTE and
-	ADASYN are replaced with ROS
- c) if there are no majority observations included in the neighbors,
-	ADASYN is replaced with SMOTE
+ a) SMOTE and ADASYN use 5 nearest neighbors, or the maximum number of available
+    neighbors if the minority sample consists of only five or less observations
+ b) if there is only one minority training example, SMOTE and ADASYN are replaced
+    with ROS (as there are no neighbors to be used)
+ c) if there are no majority observations in any of the minority neighborhoods,
+    the sampling density function is not defined and ADASYN is replaced with SMOTE
 '''
 
 ### Choose one label as the positive class in OvR classification:
