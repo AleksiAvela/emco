@@ -92,6 +92,7 @@ train_nwords = np.asarray(X_tr.sum(axis=1)).reshape(-1)
 test_nwords  = np.asarray(X_te.sum(axis=1)).reshape(-1)
 # These are the original DECOM hyperparameters:
 decom = LDAOS(n_topics=30, alpha=50/30, beta=0.01, max_iter=300)
+# MCO with gamma = 0 and EMCO with gamma = 1:
 mco   = EMCO(gamma=0)
 emco  = EMCO(gamma=1)
 
