@@ -213,7 +213,7 @@ class ExtrapolatedMarkovChainOversampling:
 			   number of generated synthetic documents)
 	    	---
 		Returns  : an array of documents (each document is a list of tokens), and an array
-			   of of binary labels, where minority label => 1 and majority label => 0
+			   of binary labels, where minority label => 1 and majority label => 0
 		'''
 		
 		assert self.fitted, "Run .fit() before sampling!"
