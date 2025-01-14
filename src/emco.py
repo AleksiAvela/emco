@@ -31,7 +31,7 @@ class ExtrapolatedMarkovChainOversampling:
 		min_counts = {}
 		for doc in self.min_data:
 			for w in doc:
-				if w in min_counts.keys():
+				if w in min_counts:
 					min_counts[w] += 1
 				else:
 					min_counts[w] = 1
