@@ -51,12 +51,12 @@ def preprocess(data, min_df=1, min_len=1, stopwords=[], sep=None, stem=True):
 			clean_text = ['<empty>']
 		
 		for w in clean_text:
-			if w in vocabulary.keys():
+			if w in vocabulary:
 				word_count[w] += 1
 			elif min_df == 0:
 				vocabulary[w] = len(vocabulary)
 				word_count[w] = 1
-			elif w in infrequent.keys():
+			elif w in infrequent:
 				if infrequent[w] == min_df:
 					vocabulary[w] = len(vocabulary)
 					word_count[w] = min_df + 1
@@ -70,25 +70,25 @@ def preprocess(data, min_df=1, min_len=1, stopwords=[], sep=None, stem=True):
 	return [[w for w in d if w in vocabulary] for d in docs], vocabulary, word_count
 
 	
-def initialize_data(pos_class, stopwords=[], train_min_df=1, only_headlines=True):
+def initialize_data(stopwords=[], train_min_df=1, only_headlines=True):
 	
 	'''
-	Initialize Reuters-21578 dataset with ModApte test-training split for binary
-	classification based on the given the positive class. By default, considers
- 	only headlines, and if only_headlines=False, considers full articles.
+	Initialize Reuters-21578 dataset with ModApte test-training split. By default,
+	considers only headlines, and if only_headlines=False, considers full articles.
 	---
 	returns:
+		train            : unpreprocessed training documents
 		train_docs       : preprocessed training documents
 		train_vocabulary : training vocabulary
-		y_train          : binary training labels
+		y_train          : training labels
 		test_docs        : preprocessed test documents (where min_df=0)
-		y_test           : binary test labels
+		y_test           : test labels
 	'''
 	
 	train   = [] # unpreprocessed training documents
 	test    = [] # unpreprocessed test documents
-	y_train = [] # binary training labels given the category pos_class
-	y_test  = [] # binary test labels given the category pos_class
+	y_train = [] # raw training labels (there can be multiple labels per document)
+	y_test  = [] # raw test labels (there can multiple labels per document)
 	
 	for file in reuters.fileids():
 		if file.split('/')[0] == 'test':
@@ -96,19 +96,19 @@ def initialize_data(pos_class, stopwords=[], train_min_df=1, only_headlines=True
 				test.append(reuters.raw(file).split('\n')[0])
 			else:
 				test.append(reuters.raw(file))
-			y_test.append(int(pos_class in reuters.categories(file)))
+			y_test.append(reuters.categories(file))
 		else:
 			if only_headlines:
 				train.append(reuters.raw(file).split('\n')[0])
 			else:
 				train.append(reuters.raw(file))
-			y_train.append(int(pos_class in reuters.categories(file)))
+			y_train.append(reuters.categories(file))
 	
 	train_docs, train_vocabulary, _ = preprocess(
 		train, min_df=train_min_df, stopwords=stopwords, stem=True)
 	test_docs, _, _ = preprocess(test, min_df=0, stem=True)
 	
-	return train_docs, train_vocabulary, y_train, test_docs, y_test
+	return train, train_docs, train_vocabulary, y_train, test_docs, y_test
 		
 
 def test(X, y, X_test, y_test, tol=1e-3):
