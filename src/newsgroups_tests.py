@@ -15,6 +15,7 @@ from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import ADASYN
 from pydro.src.dro import DistributionalRandomOversampling
 from DECOMlike import LDAOS
+from edaos import EDAOversampling as EDAOS
 from emco import ExtrapolatedMarkovChainOversampling as EMCO
 
 
@@ -39,7 +40,7 @@ N = 5
 ### SVC tolerance:
 svc_tol = 1e-3
 
-balance_ratio  = 0.1 # Relative minority frequency after sampling
+balance_ratio  = 0.2 # Relative minority frequency after sampling
 train_min_df   = 2   # Only words that appear more than "train_min_df" times in
 		     # training documents are included in vocabulary
 sampling_strategy = balance_ratio/(1-balance_ratio)
@@ -89,13 +90,13 @@ te_docs, _, _ = preprocess(list(test_data), min_df=0, sep=None, stem=True)
 ### Free some memory:
 data_train   = []
 data_test    = []
-train_data   = []
 test_data    = []
 label_counts = []
 
 ### Drop empty documents:
 tr_idx = np.array([i for i,doc in enumerate(tr_docs) if doc != ['<empty>']])
 te_idx = np.array([i for i,doc in enumerate(te_docs) if doc != ['<empty>']])
+train_data = [train_data[i] for i in tr_idx]
 tr_docs = [tr_docs[i] for i in tr_idx]
 te_docs = [te_docs[i] for i in te_idx]
 train_labels = train_labels[tr_idx]
@@ -164,12 +165,17 @@ for j, category in enumerate(categories):
 			test_nwords  = np.asarray(X_te.sum(axis=1)).reshape(-1)
 			# These are the original DECOM hyperparameters:
 			decom = LDAOS(n_topics=30, alpha=50/30, beta=0.01, max_iter=300)
+			# EDA Oversampling:
+			edaos = EDAOS(s_ratio=balance_ratio)
+			# EMCO:
 			mco   = EMCO(gamma=0)
 			emco  = EMCO(gamma=1)
+			emco2 = EMCO(gamma=0.1)
 			### Fitting EMCO doesn't include randomness so do it only
 			### once for each category:
 			mco.fit(tr_docs, y_tr, pos_class=1)
 			emco.fit(tr_docs, y_tr, pos_class=1)
+			emco2.fit(tr_docs, y_tr, pos_class=1)
 		
 		### ROS:
 		Xros, yros = ros.fit_resample(X_tr, y_tr)
@@ -195,29 +201,42 @@ for j, category in enumerate(categories):
 		# Then the whole DECOM sample is transformed:
 		Xdecom = pipe['tfidf'].transform(dok_matrix(Xdecom))
 		
+		### EDA Oversampling:
+		eda_docs, yeda = edaos.sample(train_data, y_tr)
+		Xeda = dok_matrix(pipe.transform(eda_docs))
+		
 		### MCO and EMCO:
 		# First oversample the synthetic documents:
-		mcodocs, ymco   = mco.sample(s_ratio=balance_ratio, length='auto', complete=True)
-		emcodocs, yemco = emco.sample(s_ratio=balance_ratio, length='auto', complete=True)
+		mcodocs, ymco     = mco.sample(s_ratio=balance_ratio, length='auto', complete=True)
+		emcodocs, yemco   = emco.sample(s_ratio=balance_ratio, length='auto', complete=True)
+		emcodocs2, yemco2 = emco2.sample(s_ratio=balance_ratio, length='auto', complete=True)
 		# Then transform the oversampled data:
-		Xmco  = dok_matrix(pipe.transform([' '.join(doc) for doc in mcodocs]))
-		Xemco = dok_matrix(pipe.transform([' '.join(doc) for doc in emcodocs]))
+		Xmco   = dok_matrix(pipe.transform([' '.join(doc) for doc in mcodocs]))
+		Xemco  = dok_matrix(pipe.transform([' '.join(doc) for doc in emcodocs]))
+		Xemco2 = dok_matrix(pipe.transform([' '.join(doc) for doc in emcodocs2]))
 		
 		### Free some memory:
-		emcodocs = []
-		mcodocs  = []
+		eda_docs  = []
+		emcodocs2 = []
+		emcodocs  = []
+		mcodocs   = []
 			
 		print("\nTesting with linear SVM ...")
 		print(datetime.now())
 		
 		method,bAcc,TPR,TNR,prec,f_1,f_2 = [],[],[],[],[],[],[]
-		for X, y, name in zip([X_tr, Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco],
-				      [y_tr, yros, ysmote, yada, ydro, ydecom, yemco, ymco],
-				      ["Original","ROS","SMOTE","ADASYN","DRO","DECOM","EMCO","MCO"]):
+		for X, y, name in zip(
+				[X_tr, Xros, Xsmote, Xada, Xdro,
+				 Xdecom, Xeda, Xemco, Xemco2, Xmco],
+				[y_tr, yros, ysmote, yada, ydro,
+				 ydecom, yeda, yemco, yemco2, ymco],
+				["Original", "ROS", "SMOTE", "ADASYN", "DRO",
+				 "DECOM", "EDA", "EMCO", "EMCO(0.1)", "MCO"]):
 			if name == "DRO":
 				res = test(X, y, Xdro_te, y_te, tol=svc_tol)
 			else:
 				res = test(X, y, X_te, y_te, tol=svc_tol)
+			
 			method.append(name)
 			bAcc.append(res[0])
 			TPR.append(res[1])
@@ -238,8 +257,8 @@ for j, category in enumerate(categories):
 		
 		### Free some memory:
 		Xdro_te = []
-		Xros, Xsmote, Xada, Xdro, Xdecom, Xemco, Xmco = [], [], [], [], [], [], []
-		yros, ysmote, yada, ydro, ydecom, yemco, ymco = [], [], [], [], [], [], []
+		Xros,Xsmote,Xada,Xdro,Xdecom,Xeda,Xemco,Xemco2,Xmco = [],[],[],[],[],[],[],[],[]
+		yros,ysmote,yada,ydro,ydecom,yeda,yemco,yemco2,ymco = [],[],[],[],[],[],[],[],[]
 		time.sleep(1)
 		
 	category_averages[category] = pd.concat(
